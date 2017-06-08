@@ -54,7 +54,7 @@
 //Array of servo objects
 Servo servo[6];
 
-//Zero positions of servos, in this positions their arms are perfectly horizontal, in us
+//position the arms perfectly horizontal, for my servos
 static int zero[6]={MID,1400,MID,MID,MID,MID};
 
 //In this array is stored requested position for platform - x,y,z,rot(x),rot(y),rot(z)
@@ -81,20 +81,8 @@ const float beta[] = {pi/2,-pi/2,-pi/6, 5*pi/6,-5*pi/6,pi/6},
 //z_home - height of platform above base, 0 is height of servo arms
 servo_mult=400/(pi/4),L1 = 0.79,L2 = 4.66, z_home = 4.05;
 
-//RD distance from center of platform to attachment points (arm attachment point)
-
-//RD distance from center of base to center of servo rotation points (servo axis)
-
-//theta_p-angle between two servo axis points, theta_r - between platform attachment points
-
-//theta_angle-helper variable
-
-//p[][]=x y values for servo rotation points
-
-//re[]{}=x y z values of platform attachment points positions
-
 //equations used for p and re will affect postion of X axis, they can be changed to achieve
-
+//this was used from http://www.instructables.com/id/Arduino-controlled-Rotary-Stewart-Platform/
 //specific X axis position
 const float RD = 2.42,PD =2.99,theta_p = radians(37.5),
 theta_angle=(pi/3-theta_p)/2, theta_r = radians(8),
@@ -141,12 +129,13 @@ void setup(){
    servo[5].attach(11, MIN, MAX);
 //begin of serial communication
    Serial.begin(BAUDRATE);
-//initialize nunchuk
+//initialize wii nunchuk
 nunchuk.init();
 //putting into base position
    setPos(arr);
 }
-
+//calculations were found at http://memememememememe.me/post/stewart-platform-math/, not all is the same as it is fit for my servos and size of the platform used.
+//The servos I have are not the best, but got the job done for the proof of concept. (futaba S3003 on Amazon ~$10/piece)
 //function calculating needed servo rotation value
 float getAlpha(int *i){
    static int n;
@@ -263,11 +252,7 @@ void loop()
    if(Serial.available()>0){
       int input=Serial.read();
       switch(input){
-//action to turn backlight off
-         case SETBACKOFF:
 
-//reserved for future use - possiblity to send just servo timing values
-//main control would be executed on communicating partner
          case SETPOSITIONSINMS:
             for(int i=0;i<6;i++){
                long kk;
@@ -318,51 +303,10 @@ void loop()
     }
    }
 
-   //
-   /*if(nunchuk.analogX >= 142 && nunchuk.analogY >= 140){
-      if(arr[0] <= CONTROLLER_X_MAX){
-         arr[0] +=1;
-      }
-      if(arr[1] <= CONTROLLER_Y_MAX){
-         arr[1] +=1;
-      }
-         setPos(arr);
-      }
-      
-   
-   if(nunchuk.analogX <=105 && nunchuk.analogY >= 140){
-      if(arr[0] >= CONTROLLER_X_MIN){
-         arr[0] -=1;
-         if(arr[1] <= CONTROLLER_Y_MAX){
-            arr[1] +=1;
-         }
-         setPos(arr);
-      }
-   }
-   if(nunchuk.analogX <=105 && nunchuk.analogY <=105){
-      if(arr[0] >= CONTROLLER_X_MIN){
-         arr[0] -= 1;
-      }
-      if(arr[1] >= CONTROLLER_Y_MIN){
-         arr[1] -= 1;
-      }
-      setPos(arr);
-   }
-   if(nunchuk.analogX > 135 && nunchuk.analogY <105){
-      if(arr[0] <= CONTROLLER_X_MAX){
-         arr[0] += 1;
-      }
-      if(arr[1] >= CONTROLLER_Y_MIN){
-         arr[1] -= 1;
-      }
-      setPos(arr);
-   }*/
-   
-   //if(nunchuk.analogX <
    
    if(nunchuk.cButton == 1){
-      if(arr[2] != CONTROLLER_MAX){
-         arr[2] +=25;
+      if(arr[4] != CONTROLLER_MAX){
+         arr[4] +=25;
       }
       
       Serial.print("\n");
@@ -373,8 +317,8 @@ void loop()
    }
    
    if(nunchuk.zButton == 1){
-      if(arr[2] != CONTROLLER_MIN){
-         arr[2] -=25;
+      if(arr[4] != CONTROLLER_MIN){
+         arr[4] -=25;
       }
       Serial.print("\n");
       for(int i=0;i<6;i++){
